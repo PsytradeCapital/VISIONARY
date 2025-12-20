@@ -1,0 +1,66 @@
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import uvicorn
+import os
+from database import init_db
+from auth import verify_token
+from api.upload import router as upload_router
+from api.schedule import router as schedule_router
+from api.reminders import router as reminders_router
+from api.progress import router as progress_router
+from api.websocket import router as websocket_router
+
+security = HTTPBearer()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database on startup
+    await init_db()
+    yield
+
+app = FastAPI(
+    title="Visionary AI Personal Scheduler",
+    description="AI-powered personal scheduling assistant",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(upload_router)
+app.include_router(schedule_router)
+app.include_router(reminders_router)
+app.include_router(progress_router)
+app.include_router(websocket_router)
+
+@app.get("/")
+async def root():
+    return {"message": "Visionary AI Personal Scheduler API"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+@app.get("/protected")
+async def protected_route(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Example protected route requiring authentication"""
+    user = await verify_token(credentials.credentials)
+    return {"message": f"Hello {user['email']}", "user_id": user["id"]}
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
