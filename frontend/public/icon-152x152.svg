@@ -1,0 +1,17 @@
+<svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="152" height="152" rx="22.8" fill="url(#bgGradient)"/>
+  
+  <!-- App Icon - Letter V -->
+  <text x="76" y="98.8" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="white">V</text>
+  
+  <!-- AI Indicator -->
+  <circle cx="114" cy="38" r="12.16" fill="#FE6B8B"/>
+</svg>

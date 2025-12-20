@@ -1,0 +1,17 @@
+{
+  "short_name": "Visionary",
+  "name": "Visionary AI Assistant", 
+  "description": "AI-powered personal assistant",
+  "icons": [
+    {
+      "src": "app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#2563EB",
+  "background_color": "#1e40af"
+}
