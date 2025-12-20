@@ -18,7 +18,6 @@ import { useNavigate } from 'react-router-dom';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import InsightsIcon from '@mui/icons-material/Insights';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -68,9 +67,9 @@ const Dashboard: React.FC = () => {
   // Quick action items
   const quickActions = [
     { icon: <UploadFileIcon />, label: 'Upload Data', route: '/upload' },
-    { icon: <PhotoLibraryIcon />, label: 'Design Gallery', route: '/gallery' },
     { icon: <TrendingUpIcon />, label: 'View Progress', route: '/progress' },
-    { icon: <CalendarTodayIcon />, label: 'Today\'s Schedule', route: '/schedule' }
+    { icon: <CalendarTodayIcon />, label: 'Today\'s Schedule', route: '/schedule' },
+    { icon: <SmartToyIcon />, label: 'AI Assistant', route: '/upload' }
   ];
 
   // Recent achievements
@@ -104,15 +103,15 @@ const Dashboard: React.FC = () => {
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Chip 
               icon={<StarIcon />} 
-              label="4.65★ Design Rating" 
+              label="Professional Design" 
               sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
             />
             <Chip 
-              label="19 Design Concepts" 
+              label="AI-Powered Scheduling" 
               sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
             />
             <Chip 
-              label="Professional UI" 
+              label="Smart Analytics" 
               sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
             />
           </Box>
@@ -337,18 +336,18 @@ const Dashboard: React.FC = () => {
             <Grid container spacing={2} sx={{ textAlign: 'center' }}>
               <Grid item xs={6}>
                 <Typography variant="h4" color="primary" fontWeight={700}>
-                  19
+                  12
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Design Concepts
+                  Active Goals
                 </Typography>
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="h4" color="success.main" fontWeight={700}>
-                  4.6
+                  85%
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Avg Rating
+                  Success Rate
                 </Typography>
               </Grid>
             </Grid>
@@ -356,11 +355,11 @@ const Dashboard: React.FC = () => {
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<PhotoLibraryIcon />}
-              onClick={() => navigate('/gallery')}
+              startIcon={<InsightsIcon />}
+              onClick={() => navigate('/progress')}
               sx={{ mt: 3 }}
             >
-              Explore Gallery
+              View Analytics
             </Button>
           </Paper>
         </Grid>

@@ -23,8 +23,6 @@ import {
   CloudUpload as UploadIcon,
   Schedule as ScheduleIcon,
   TrendingUp as ProgressIcon,
-  PhotoLibrary as GalleryIcon,
-  Tune as SelectorIcon,
   AccountCircle,
   Notifications
 } from '@mui/icons-material';
@@ -32,8 +30,6 @@ import Dashboard from './components/Dashboard';
 import UploadPortal from './components/UploadPortal';
 import ScheduleView from './components/ScheduleView';
 import ProgressView from './components/ProgressView';
-import ImageGallery from './components/ImageGallery';
-import ImageSelector from './components/ImageSelector';
 import Login from './components/Login';
 import { webSocketService } from './services/api';
 
@@ -315,9 +311,7 @@ function App() {
     { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
     { label: 'Upload', path: '/upload', icon: <UploadIcon /> },
     { label: 'Schedule', path: '/schedule', icon: <ScheduleIcon /> },
-    { label: 'Progress', path: '/progress', icon: <ProgressIcon /> },
-    { label: 'Gallery', path: '/gallery', icon: <GalleryIcon /> },
-    { label: 'Selector', path: '/selector', icon: <SelectorIcon /> }
+    { label: 'Progress', path: '/progress', icon: <ProgressIcon /> }
   ];
 
   const currentTab = navigationTabs.findIndex(tab => tab.path === location.pathname);
@@ -520,8 +514,6 @@ function App() {
             <Route path="/upload" element={<UploadPortal />} />
             <Route path="/schedule" element={<ScheduleView />} />
             <Route path="/progress" element={<ProgressView />} />
-            <Route path="/gallery" element={<ImageGallery />} />
-            <Route path="/selector" element={<ImageSelector />} />
           </Routes>
         </Container>
       </Box>
