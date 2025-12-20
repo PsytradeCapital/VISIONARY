@@ -13,17 +13,11 @@ import {
   Select,
   MenuItem,
   Paper,
-  Divider,
   Rating,
-  Checkbox,
-  FormControlLabel,
-  Alert,
-  LinearProgress
+  Checkbox
 } from '@mui/material';
-import BlendIcon from '@mui/icons-material/Blend';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CompareIcon from '@mui/icons-material/Compare';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { imageAnalyzer } from '../utils/imageAnalyzer';
 
 interface ImageData {
@@ -297,7 +291,7 @@ const ImageSelector: React.FC = () => {
         <Box mt={4} display="flex" gap={2} justifyContent="center">
           <Button
             variant="contained"
-            startIcon={<BlendIcon />}
+            startIcon={<AutoAwesomeIcon />}
             size="large"
           >
             Create Blend ({selectedImages.length} images)

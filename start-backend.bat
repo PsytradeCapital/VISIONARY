@@ -1,18 +1,18 @@
 @echo off
-echo Starting Visionary Backend - Simple Mode...
+echo Starting Visionary Backend - Full Version...
 echo.
 
 cd backend
 
 echo Installing Python dependencies...
-pip install fastapi uvicorn
+pip install -r requirements.txt
 
 echo.
-echo Starting FastAPI server (Simple Mode)...
+echo Starting FastAPI server...
 echo Backend will be available at: http://localhost:8000
-echo Visit http://localhost:8000/docs-redirect for info
+echo API Documentation at: http://localhost:8000/docs
 echo.
 
-python simple_main.py
+python main.py
 
 pause

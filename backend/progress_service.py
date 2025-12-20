@@ -2,7 +2,8 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from models import Vision, VisionMetric, ScheduleBlock, UserFeedback
+from models import VisionMetric, ScheduleBlock, UserFeedback
+from database import Vision
 import uuid
 import logging
 

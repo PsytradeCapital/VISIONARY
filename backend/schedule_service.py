@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, time
 from typing import Dict, List, Any, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
-from models import Schedule, ScheduleBlock, Vision, UserProfile
+from models import Schedule, ScheduleBlock
+from database import Vision, UserProfile
 from ai_service import ai_service
 import logging
 from dataclasses import dataclass

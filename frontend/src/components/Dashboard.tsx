@@ -7,8 +7,7 @@ import {
   Card, 
   CardContent,
   CardMedia,
-  Button,
-  Chip
+  Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -19,22 +18,25 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
-  // Featured images for the dashboard
-  const featuredImages = [
+  // Design mockup images showing how each feature should look
+  const featureDesigns = [
     {
       src: '/images/image2.jpeg',
-      title: 'AI-Powered Scheduling',
-      description: 'Intelligent schedule planning'
+      title: 'Schedule Planning Interface',
+      description: 'This is how the scheduling feature should look',
+      feature: 'schedule'
     },
     {
       src: '/images/image3.jpeg',
-      title: 'Progress Tracking',
-      description: 'Visual goal monitoring'
+      title: 'Progress Tracking Dashboard',
+      description: 'This is how the progress view should look',
+      feature: 'progress'
     },
     {
       src: '/images/image4.jpeg',
-      title: 'Personal Assistant',
-      description: 'Your AI companion'
+      title: 'AI Assistant Interface',
+      description: 'This is how the AI chat should look',
+      feature: 'upload'
     }
   ];
 
@@ -134,7 +136,7 @@ const Dashboard: React.FC = () => {
             </Box>
             
             <Grid container spacing={2}>
-              {featuredImages.map((image, index) => (
+              {featureDesigns.map((image, index) => (
                 <Grid item xs={12} sm={4} key={index}>
                   <Card sx={{ height: '100%' }}>
                     <CardMedia

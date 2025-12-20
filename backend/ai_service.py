@@ -4,7 +4,8 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from models import KnowledgeEntry, UserFeedback, Vision, ScheduleBlock
+from models import KnowledgeEntry, UserFeedback, ScheduleBlock
+from database import Vision
 import logging
 from collections import defaultdict, Counter
 import asyncio

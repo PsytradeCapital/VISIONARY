@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
-from models import Reminder, ScheduleBlock, Vision, UserProfile
+from models import Reminder, ScheduleBlock
+from database import Vision, UserProfile
 from redis_client import redis_client
 import logging
 from enum import Enum

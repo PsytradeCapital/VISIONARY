@@ -143,7 +143,7 @@ export const scheduleAPI = {
     return response.data;
   },
 
-  generateSchedule: async (timeframe: string, preferences: any) => {
+  generateSchedule: async (timeframe: string, preferences: any = {}) => {
     const response = await api.post('/api/schedule/generate', {
       timeframe,
       preferences
@@ -153,6 +153,16 @@ export const scheduleAPI = {
 
   getAlternatives: async (scheduleId: string) => {
     const response = await api.get(`/api/schedule/${scheduleId}/alternatives`);
+    return response.data;
+  },
+
+  getUserSchedules: async () => {
+    const response = await api.get('/api/schedule/');
+    return response.data;
+  },
+
+  getSchedule: async (scheduleId: string) => {
+    const response = await api.get(`/api/schedule/${scheduleId}`);
     return response.data;
   },
 };
@@ -170,6 +180,11 @@ export const reminderAPI = {
 
   updateReminder: async (reminderId: string, updates: any) => {
     const response = await api.put(`/api/reminders/${reminderId}`, updates);
+    return response.data;
+  },
+
+  scheduleReminder: async (reminderData: any) => {
+    const response = await api.post('/api/reminders/schedule', reminderData);
     return response.data;
   },
 };
@@ -274,73 +289,5 @@ export class WebSocketService {
 }
 
 export const webSocketService = new WebSocketService();
-
-export const scheduleAPI = {
-  generateSchedule: async (timeframe: string, preferences: any = {}) => {
-    const response = await api.post('/api/schedule/generate', {
-      timeframe,
-      preferences
-    });
-    return response.data;
-  },
-
-  getUserSchedules: async (timeframe?: string) => {
-    const params = timeframe ? { timeframe } : {};
-    const response = await api.get('/api/schedule/user', { params });
-    return response.data;
-  },
-
-  getSchedule: async (scheduleId: string) => {
-    const response = await api.get(`/api/schedule/${scheduleId}`);
-    return response.data;
-  },
-
-  updateSchedule: async (scheduleId: string, modifications: any[]) => {
-    const response = await api.put(`/api/schedule/${scheduleId}`, modifications);
-    return response.data;
-  },
-
-  getAlternatives: async (scheduleId: string, disruption: any) => {
-    const response = await api.post(`/api/schedule/${scheduleId}/alternatives`, disruption);
-    return response.data;
-  },
-
-  optimizeSchedule: async (scheduleId: string) => {
-    const response = await api.post(`/api/schedule/${scheduleId}/optimize`);
-    return response.data;
-  }
-};
-
-export const reminderAPI = {
-  scheduleReminder: async (reminderData: any) => {
-    const response = await api.post('/api/reminders/schedule', reminderData);
-    return response.data;
-  },
-
-  sendMotivation: async (category: string, activityName?: string, context: any = {}) => {
-    const response = await api.post('/api/reminders/motivational', {
-      category,
-      activity_name: activityName,
-      context
-    });
-    return response.data;
-  },
-
-  celebrateAchievement: async (achievement: any) => {
-    const response = await api.post('/api/reminders/celebrate', achievement);
-    return response.data;
-  },
-
-  getRecoverySuggestions: async (missedGoal: any) => {
-    const response = await api.post('/api/reminders/recovery', missedGoal);
-    return response.data;
-  },
-
-  getUserReminders: async (status?: string) => {
-    const params = status ? { status } : {};
-    const response = await api.get('/api/reminders/user', { params });
-    return response.data;
-  }
-};
 
 export default api;
