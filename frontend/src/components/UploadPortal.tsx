@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -19,13 +19,14 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Fab
+  Fab,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import {
   CloudUpload as UploadIcon,
   Mic as MicIcon,
   Stop as StopIcon,
-  PlayArrow as PlayIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
   InsertDriveFile as FileIcon,
@@ -34,10 +35,10 @@ import {
   AudioFile as AudioIcon,
   Description as DocumentIcon,
   SmartToy as AIIcon,
-  Add as AddIcon,
-  Check as CheckIcon
+  Add as AddIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 interface UploadedFile {
   id: string;
@@ -47,84 +48,157 @@ interface UploadedFile {
   uploadProgress: number;
   status: 'uploading' | 'completed' | 'processing' | 'error';
   aiAnalysis?: string;
+  category?: string;
+  confidence?: number;
 }
 
 const UploadPortal: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [files, setFiles] = useState<UploadedFile[]>([
-    {
-      id: '1',
-      name: 'project-presentation.pdf',
-      size: '2.4 MB',
-      type: 'pdf',
-      uploadProgress: 100,
-      status: 'completed',
-      aiAnalysis: 'Document contains 15 slides about AI implementation strategy'
-    },
-    {
-      id: '2',
-      name: 'meeting-recording.mp3',
-      size: '12.8 MB',
-      type: 'audio',
-      uploadProgress: 100,
-      status: 'processing',
-      aiAnalysis: 'Audio transcription in progress...'
-    },
-    {
-      id: '3',
-      name: 'data-analysis.xlsx',
-      size: '856 KB',
-      type: 'spreadsheet',
-      uploadProgress: 75,
-      status: 'uploading'
-    }
-  ]);
-
+  const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [openAIDialog, setOpenAIDialog] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files;
-    if (selectedFiles) {
-      Array.from(selectedFiles).forEach((file) => {
-        const newFile: UploadedFile = {
-          id: Date.now().toString() + Math.random(),
-          name: file.name,
-          size: formatFileSize(file.size),
-          type: getFileType(file.name),
-          uploadProgress: 0,
-          status: 'uploading'
-        };
-        
-        setFiles(prev => [...prev, newFile]);
-        
-        // Simulate upload progress
-        simulateUpload(newFile.id);
-      });
+  // Load existing files on component mount
+  useEffect(() => {
+    loadKnowledgeEntries();
+  }, []);
+
+  const loadKnowledgeEntries = async () => {
+    try {
+      const response = await api.get('/upload/knowledge');
+      if (response.data.success) {
+        const entries = response.data.data.map((entry: any) => ({
+          id: entry.id,
+          name: entry.metadata?.filename || `${entry.source_type}-${entry.id.slice(0, 8)}`,
+          size: entry.metadata?.file_size ? formatFileSize(entry.metadata.file_size) : 'Unknown',
+          type: entry.source_type,
+          uploadProgress: 100,
+          status: 'completed' as const,
+          aiAnalysis: `Category: ${entry.category} (${Math.round(entry.confidence * 100)}% confidence)`,
+          category: entry.category,
+          confidence: entry.confidence
+        }));
+        setFiles(entries);
+      }
+    } catch (error) {
+      console.error('Error loading knowledge entries:', error);
+      setError('Failed to load existing files');
     }
   };
 
-  const simulateUpload = (fileId: string) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 20;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setFiles(prev => prev.map(file => 
-          file.id === fileId 
-            ? { ...file, uploadProgress: 100, status: 'completed', aiAnalysis: 'AI analysis completed successfully' }
-            : file
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles) return;
+
+    for (const file of Array.from(selectedFiles)) {
+      const newFile: UploadedFile = {
+        id: Date.now().toString() + Math.random(),
+        name: file.name,
+        size: formatFileSize(file.size),
+        type: getFileType(file.name),
+        uploadProgress: 0,
+        status: 'uploading'
+      };
+      
+      setFiles(prev => [...prev, newFile]);
+      
+      try {
+        // Upload the file
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await api.post('/upload/document', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setFiles(prev => prev.map(f => 
+                f.id === newFile.id ? { ...f, uploadProgress: progress } : f
+              ));
+            }
+          }
+        });
+
+        if (response.data.success) {
+          setFiles(prev => prev.map(f => 
+            f.id === newFile.id 
+              ? { 
+                  ...f, 
+                  uploadProgress: 100, 
+                  status: 'completed',
+                  aiAnalysis: `Category: ${response.data.data.category} (${Math.round(response.data.data.confidence * 100)}% confidence)`,
+                  category: response.data.data.category,
+                  confidence: response.data.data.confidence
+                }
+              : f
+          ));
+          setSuccess('File uploaded and processed successfully!');
+        }
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        setFiles(prev => prev.map(f => 
+          f.id === newFile.id ? { ...f, status: 'error', aiAnalysis: 'Upload failed' } : f
         ));
-      } else {
-        setFiles(prev => prev.map(file => 
-          file.id === fileId ? { ...file, uploadProgress: progress } : file
-        ));
+        setError(error.response?.data?.detail || 'Upload failed');
       }
-    }, 500);
+    }
+  };
+
+  const handleTextUpload = async (text: string) => {
+    if (!text.trim()) return;
+
+    const newFile: UploadedFile = {
+      id: Date.now().toString(),
+      name: `text-input-${new Date().toISOString().split('T')[0]}`,
+      size: `${text.length} chars`,
+      type: 'text',
+      uploadProgress: 0,
+      status: 'uploading'
+    };
+    
+    setFiles(prev => [...prev, newFile]);
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('text', text);
+      
+      const response = await api.post('/upload/text', formData);
+
+      if (response.data.success) {
+        setFiles(prev => prev.map(f => 
+          f.id === newFile.id 
+            ? { 
+                ...f, 
+                uploadProgress: 100, 
+                status: 'completed',
+                aiAnalysis: `Category: ${response.data.data.category} (${Math.round(response.data.data.confidence * 100)}% confidence)`,
+                category: response.data.data.category,
+                confidence: response.data.data.confidence
+              }
+            : f
+        ));
+        setSuccess('Text processed successfully!');
+        setAiPrompt('');
+        setOpenAIDialog(false);
+      }
+    } catch (error: any) {
+      console.error('Text upload error:', error);
+      setFiles(prev => prev.map(f => 
+        f.id === newFile.id ? { ...f, status: 'error', aiAnalysis: 'Processing failed' } : f
+      ));
+      setError(error.response?.data?.detail || 'Text processing failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -557,19 +631,19 @@ const UploadPortal: React.FC = () => {
 
       {/* AI Assistant Dialog */}
       <Dialog open={openAIDialog} onClose={() => setOpenAIDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>AI Assistant</DialogTitle>
+        <DialogTitle>Process Text Input</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Ask the AI to analyze your files, extract information, or provide insights.
+            Enter text to be processed by AI for schedule generation and insights.
           </Typography>
           <TextField
             fullWidth
             multiline
             rows={4}
-            label="What would you like to know about your files?"
+            label="Enter your text, goals, or notes"
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="e.g., Summarize the main points from my uploaded documents..."
+            placeholder="e.g., I want to exercise 3 times a week, learn Spanish for 30 minutes daily, and save $500 monthly..."
           />
         </DialogContent>
         <DialogActions>
@@ -577,16 +651,36 @@ const UploadPortal: React.FC = () => {
           <Button 
             variant="contained" 
             startIcon={<AIIcon />}
-            onClick={() => {
-              // Simulate AI processing
-              setOpenAIDialog(false);
-              setAiPrompt('');
-            }}
+            onClick={() => handleTextUpload(aiPrompt)}
+            disabled={loading || !aiPrompt.trim()}
           >
-            Ask AI
+            {loading ? 'Processing...' : 'Process Text'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Error/Success Snackbars */}
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!success} 
+        autoHideDuration={4000} 
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert onClose={() => setSuccess(null)} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
 
       {/* Floating Action Button */}
       <Fab

@@ -16,8 +16,14 @@ security = HTTPBearer()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Skip database initialization for now
-    # await init_db()
+    # Initialize database
+    try:
+        await init_db()
+        print("✅ Database initialized successfully!")
+    except Exception as e:
+        print(f"⚠️ Database initialization failed: {e}")
+        print("📝 Using in-memory fallback mode")
+    
     print("🚀 Visionary Backend Started Successfully!")
     print("📍 API available at: http://localhost:8000")
     print("📖 API docs at: http://localhost:8000/docs")

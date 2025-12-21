@@ -9,11 +9,11 @@ import os
 # Database configuration
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql+asyncpg://visionary:password@localhost:5432/visionary_db"
+    "sqlite+aiosqlite:///./visionary.db"  # SQLite fallback for easier setup
 )
 
 # Create async engine
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)  # Disable echo for cleaner logs
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 class Base(DeclarativeBase):
