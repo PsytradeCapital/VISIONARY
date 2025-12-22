@@ -30,7 +30,7 @@ class UploadProcessingService:
             'task': ['work', 'project', 'meeting', 'deadline', 'task', 'appointment', 'schedule', 'reminder']
         }
     
-    async def process_document(self, file: UploadFile, user_id: str) -> Dict[str, Any]:
+    async def process_document(self, file: UploadFile, user_id) -> Dict[str, Any]:
         """Process uploaded document and extract content"""
         try:
             # Validate file format
@@ -70,9 +70,12 @@ class UploadProcessingService:
             logger.error(f"Error processing document: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
     
-    async def process_voice_input(self, audio_data: bytes, user_id: str) -> Dict[str, Any]:
+    async def process_voice_input(self, file: UploadFile, user_id) -> Dict[str, Any]:
         """Process voice input and convert to text"""
         try:
+            # Read audio data
+            audio_data = await file.read()
+            
             # TODO: Implement Google Speech-to-Text API integration
             # For now, return a placeholder
             text_content = "Voice input processing not yet implemented"
@@ -91,7 +94,7 @@ class UploadProcessingService:
             logger.error(f"Error processing voice input: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing voice input: {str(e)}")
     
-    async def process_text_input(self, text: str, user_id: str) -> Dict[str, Any]:
+    async def process_text_input(self, text: str, user_id) -> Dict[str, Any]:
         """Process direct text input"""
         try:
             processed_content = await self._process_text_content(text, user_id, 'text')
@@ -136,7 +139,7 @@ class UploadProcessingService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Error reading DOCX: {str(e)}")
     
-    async def _process_text_content(self, text: str, user_id: str, source_type: str) -> Dict[str, Any]:
+    async def _process_text_content(self, text: str, user_id, source_type: str) -> Dict[str, Any]:
         """Process text content and categorize it"""
         try:
             # Categorize content
@@ -148,9 +151,14 @@ class UploadProcessingService:
             # Calculate confidence score
             confidence = self._calculate_confidence(text, category, extracted_items)
             
+            # Ensure user_id is a UUID object
+            import uuid
+            if isinstance(user_id, str):
+                user_id = uuid.UUID(user_id)
+            
             # Store in knowledge base
             knowledge_entry = KnowledgeEntry(
-                user_id=uuid.UUID(user_id),
+                user_id=user_id,
                 source_type=source_type,
                 content=text,
                 extracted_data={

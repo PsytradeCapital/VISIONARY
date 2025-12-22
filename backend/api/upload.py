@@ -39,8 +39,7 @@ async def upload_document(
             content=result.get('extracted_text', ''),
             extracted_data=result.get('extracted_items', {}),
             category=result.get('category', 'task'),
-            confidence=result.get('confidence', 0.8),
-            metadata={'filename': file.filename, 'file_size': file.size}
+            confidence=result.get('confidence', 0.8)
         )
         
         db.add(knowledge_entry)
@@ -129,6 +128,11 @@ async def upload_voice(
         user = await verify_token(credentials.credentials)
         user_id = user["id"]
         
+        # Convert user_id to UUID if it's a string
+        import uuid
+        if isinstance(user_id, str):
+            user_id = uuid.UUID(user_id)
+        
         # Process the voice file
         result = await upload_service.process_voice_input(file, user_id)
         
@@ -139,8 +143,7 @@ async def upload_voice(
             content=result.get('transcribed_text', ''),
             extracted_data=result.get('extracted_items', {}),
             category=result.get('category', 'task'),
-            confidence=result.get('confidence', 0.8),
-            metadata={'filename': file.filename, 'file_size': file.size}
+            confidence=result.get('confidence', 0.8)
         )
         
         db.add(knowledge_entry)
@@ -175,6 +178,11 @@ async def get_knowledge_entries(
         user = await verify_token(credentials.credentials)
         user_id = user["id"]
         
+        # Convert user_id to UUID if it's a string
+        import uuid
+        if isinstance(user_id, str):
+            user_id = uuid.UUID(user_id)
+        
         from sqlalchemy import select
         result = await db.execute(
             select(KnowledgeEntry).where(KnowledgeEntry.user_id == user_id)
@@ -191,8 +199,7 @@ async def get_knowledge_entries(
                     "content": entry.content[:200] + "..." if len(entry.content) > 200 else entry.content,
                     "extracted_data": entry.extracted_data,
                     "confidence": entry.confidence,
-                    "created_at": entry.created_at.isoformat(),
-                    "metadata": entry.metadata
+                    "created_at": entry.created_at.isoformat()
                 }
                 for entry in entries
             ]
