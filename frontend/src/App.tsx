@@ -51,6 +51,7 @@ const theme = createTheme({
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const [notification, setNotification] = useState<{
     open: boolean;
     message: string;
@@ -62,22 +63,60 @@ function App() {
   });
 
   useEffect(() => {
-    // Skip authentication for demo - show interface immediately
-    setIsAuthenticated(true);
-    setLoading(false);
+    // Check for existing authentication
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user');
     
-    // Show welcome notification
-    setNotification({
-      open: true,
-      message: '🚀 Welcome to AI Personal Assistant!',
-      severity: 'success'
-    });
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+        
+        // Connect to WebSocket
+        webSocketService.connect(parsedUser.id, token);
+        
+        setNotification({
+          open: true,
+          message: `🚀 Welcome back, ${parsedUser.email}!`,
+          severity: 'success'
+        });
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+      }
+    }
+    
+    setLoading(false);
   }, []);
 
-  const handleLogin = (token: string, newUserId: string) => {
+  const handleLogin = (token: string, userData: any) => {
+    setUser(userData);
     setIsAuthenticated(true);
+    
     // Connect to WebSocket
-    webSocketService.connect(newUserId, token);
+    webSocketService.connect(userData.id, token);
+    
+    setNotification({
+      open: true,
+      message: `🎉 Welcome to Visionary AI, ${userData.email}!`,
+      severity: 'success'
+    });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+    webSocketService.disconnect();
+    
+    setNotification({
+      open: true,
+      message: '👋 Logged out successfully!',
+      severity: 'info'
+    });
   };
 
   const handleQuickAction = (action: string) => {

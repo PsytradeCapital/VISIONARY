@@ -75,7 +75,7 @@ export const uploadAPI = {
 
   uploadVoice: async (audioBlob: Blob): Promise<UploadResponse> => {
     const formData = new FormData();
-    formData.append('audio_file', audioBlob, 'voice_input.wav');
+    formData.append('file', audioBlob, 'voice_input.wav');
     
     const response = await api.post('/api/upload/voice', formData, {
       headers: {

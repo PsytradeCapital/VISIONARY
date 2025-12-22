@@ -7,11 +7,16 @@ import {
   Button,
   Typography,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Avatar,
+  Tabs,
+  Tab
 } from '@mui/material';
+import { LockOutlined as LockIcon } from '@mui/icons-material';
+import axios from 'axios';
 
 interface LoginProps {
-  onLogin: (token: string, userId: string) => void;
+  onLogin: (token: string, user: any) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -19,6 +24,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tabValue, setTabValue] = useState(0);
+
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,89 +34,155 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setError('');
 
     try {
-      // For demo purposes, simulate login
-      // In real implementation, this would call the auth API
-      if (email && password) {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mock successful login
-        const mockToken = 'mock-jwt-token-' + Date.now();
-        const mockUserId = 'user-' + Math.random().toString(36).substr(2, 9);
-        
-        localStorage.setItem('auth_token', mockToken);
-        localStorage.setItem('user_id', mockUserId);
-        
-        onLogin(mockToken, mockUserId);
-      } else {
-        setError('Please enter both email and password');
+      const endpoint = tabValue === 0 ? '/api/auth/login' : '/api/auth/register';
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+
+      const response = await axios.post(`${API_BASE_URL}${endpoint}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.access_token) {
+        localStorage.setItem('auth_token', response.data.access_token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        onLogin(response.data.access_token, response.data.user);
       }
     } catch (error: any) {
-      setError('Login failed. Please try again.');
+      console.error('Authentication error:', error);
+      setError(
+        error.response?.data?.detail || 
+        `${tabValue === 0 ? 'Login' : 'Registration'} failed. Please try again.`
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    setError('');
+  };
+
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="background.default"
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: 2
+      }}
     >
-      <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
+      <Card
+        sx={{
+          maxWidth: 400,
+          width: '100%',
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 3,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        }}
+      >
         <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom textAlign="center">
-            Visionary
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" textAlign="center" mb={3}>
-            AI Personal Scheduler
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+            <Avatar
+              sx={{
+                m: 1,
+                bgcolor: 'primary.main',
+                background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                width: 56,
+                height: 56
+              }}
+            >
+              <LockIcon sx={{ fontSize: 32 }} />
+            </Avatar>
+            <Typography component="h1" variant="h4" fontWeight="bold" color="primary">
+              Visionary AI
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" textAlign="center">
+              AI-Powered Personal Scheduler
+            </Typography>
+          </Box>
 
-          <form onSubmit={handleSubmit}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            centered
+            sx={{ mb: 3 }}
+          >
+            <Tab label="Login" />
+            <Tab label="Register" />
+          </Tabs>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
+              margin="normal"
+              required
               fullWidth
-              label="Email"
-              type="email"
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              margin="normal"
-              required
+              disabled={loading}
+              sx={{ mb: 2 }}
             />
             <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               margin="normal"
               required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              sx={{ mb: 3 }}
             />
-
-            {error && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {error}
-              </Alert>
-            )}
-
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              size="large"
               disabled={loading}
-              sx={{ mt: 3 }}
-              startIcon={loading ? <CircularProgress size={20} /> : undefined}
+              sx={{
+                mt: 2,
+                mb: 2,
+                py: 1.5,
+                background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
+                }
+              }}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                tabValue === 0 ? 'Sign In' : 'Sign Up'
+              )}
             </Button>
-          </form>
+          </Box>
 
-          <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-            Demo: Use any email and password to login
-          </Typography>
+          {tabValue === 0 && (
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                New user? Switch to Register tab
+              </Typography>
+            </Box>
+          )}
         </CardContent>
       </Card>
     </Box>

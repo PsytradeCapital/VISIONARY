@@ -11,6 +11,7 @@ from api.schedule import router as schedule_router
 from api.reminders import router as reminders_router
 from api.progress import router as progress_router
 from api.websocket import router as websocket_router
+from api.auth import router as auth_router
 
 security = HTTPBearer()
 
@@ -46,6 +47,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(schedule_router)
 app.include_router(reminders_router)

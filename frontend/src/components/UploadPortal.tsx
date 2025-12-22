@@ -38,7 +38,7 @@ import {
   Add as AddIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import api, { uploadAPI } from '../services/api';
 
 interface UploadedFile {
   id: string;
@@ -58,6 +58,8 @@ const UploadPortal: React.FC = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [openAIDialog, setOpenAIDialog] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,11 +69,11 @@ const UploadPortal: React.FC = () => {
   // Load existing files on component mount
   useEffect(() => {
     loadKnowledgeEntries();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadKnowledgeEntries = async () => {
     try {
-      const response = await api.get('/upload/knowledge');
+      const response = await api.get('/api/upload/knowledge');
       if (response.data.success) {
         const entries = response.data.data.map((entry: any) => ({
           id: entry.id,
@@ -109,34 +111,19 @@ const UploadPortal: React.FC = () => {
       setFiles(prev => [...prev, newFile]);
       
       try {
-        // Upload the file
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await api.post('/upload/document', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              setFiles(prev => prev.map(f => 
-                f.id === newFile.id ? { ...f, uploadProgress: progress } : f
-              ));
-            }
-          }
-        });
+        // Upload the file using uploadAPI
+        const response = await uploadAPI.uploadDocument(file);
 
-        if (response.data.success) {
+        if (response.success) {
           setFiles(prev => prev.map(f => 
             f.id === newFile.id 
               ? { 
                   ...f, 
                   uploadProgress: 100, 
                   status: 'completed',
-                  aiAnalysis: `Category: ${response.data.data.category} (${Math.round(response.data.data.confidence * 100)}% confidence)`,
-                  category: response.data.data.category,
-                  confidence: response.data.data.confidence
+                  aiAnalysis: `Category: ${response.data.category} (${Math.round(response.data.confidence * 100)}% confidence)`,
+                  category: response.data.category,
+                  confidence: response.data.confidence
                 }
               : f
           ));
@@ -168,21 +155,18 @@ const UploadPortal: React.FC = () => {
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('text', text);
-      
-      const response = await api.post('/upload/text', formData);
+      const response = await uploadAPI.uploadText(text);
 
-      if (response.data.success) {
+      if (response.success) {
         setFiles(prev => prev.map(f => 
           f.id === newFile.id 
             ? { 
                 ...f, 
                 uploadProgress: 100, 
                 status: 'completed',
-                aiAnalysis: `Category: ${response.data.data.category} (${Math.round(response.data.data.confidence * 100)}% confidence)`,
-                category: response.data.data.category,
-                confidence: response.data.data.confidence
+                aiAnalysis: `Category: ${response.data.category} (${Math.round(response.data.confidence * 100)}% confidence)`,
+                category: response.data.category,
+                confidence: response.data.confidence
               }
             : f
         ));
@@ -252,38 +236,104 @@ const UploadPortal: React.FC = () => {
     }
   };
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    
-    // Simulate recording timer
-    const timer = setInterval(() => {
-      setRecordingTime(prev => {
-        if (prev >= 300) { // 5 minutes max
-          stopRecording();
-          return prev;
+  const startRecording = async () => {
+    try {
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Create MediaRecorder
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+      
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
         }
-        return prev + 1;
-      });
-    }, 1000);
+      };
+      
+      recorder.onstop = async () => {
+        // Create audio blob
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Upload the recording
+        await handleVoiceUpload(audioBlob);
+      };
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      setAudioChunks(chunks);
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      // Start timer
+      const recordingTimer = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 300) { // 5 minutes max
+            stopRecording();
+            clearInterval(recordingTimer);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setError('Failed to access microphone. Please grant permission.');
+    }
   };
 
   const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
     setIsRecording(false);
-    
-    // Add recorded file
-    const recordedFile: UploadedFile = {
+    setRecordingTime(0);
+  };
+
+  const handleVoiceUpload = async (audioBlob: Blob) => {
+    const newFile: UploadedFile = {
       id: Date.now().toString(),
-      name: `voice-note-${new Date().toISOString().split('T')[0]}.mp3`,
-      size: `${(recordingTime * 0.1).toFixed(1)} MB`,
+      name: `voice-note-${new Date().toISOString().split('T')[0]}.wav`,
+      size: formatFileSize(audioBlob.size),
       type: 'audio',
-      uploadProgress: 100,
-      status: 'processing',
-      aiAnalysis: 'Voice transcription and analysis in progress...'
+      uploadProgress: 0,
+      status: 'uploading'
     };
     
-    setFiles(prev => [...prev, recordedFile]);
-    setRecordingTime(0);
+    setFiles(prev => [...prev, newFile]);
+    setLoading(true);
+
+    try {
+      const response = await uploadAPI.uploadVoice(audioBlob);
+
+      if (response.success) {
+        setFiles(prev => prev.map(f => 
+          f.id === newFile.id 
+            ? { 
+                ...f, 
+                uploadProgress: 100, 
+                status: 'completed',
+                aiAnalysis: `Transcribed: ${response.data.category} (${Math.round(response.data.confidence * 100)}% confidence)`,
+                category: response.data.category,
+                confidence: response.data.confidence
+              }
+            : f
+        ));
+        setSuccess('Voice recording processed successfully!');
+      }
+    } catch (error: any) {
+      console.error('Voice upload error:', error);
+      setFiles(prev => prev.map(f => 
+        f.id === newFile.id ? { ...f, status: 'error', aiAnalysis: 'Processing failed' } : f
+      ));
+      setError(error.response?.data?.detail || 'Voice processing failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatTime = (seconds: number): string => {
