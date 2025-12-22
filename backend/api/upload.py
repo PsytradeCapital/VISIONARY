@@ -24,6 +24,11 @@ async def upload_document(
         user = await verify_token(credentials.credentials)
         user_id = user["id"]
         
+        # Convert user_id to UUID if it's a string
+        import uuid
+        if isinstance(user_id, str):
+            user_id = uuid.UUID(user_id)
+        
         # Process the document
         result = await upload_service.process_document(file, user_id)
         
@@ -71,6 +76,11 @@ async def upload_text(
         # Verify user authentication
         user = await verify_token(credentials.credentials)
         user_id = user["id"]
+        
+        # Convert user_id to UUID if it's a string
+        import uuid
+        if isinstance(user_id, str):
+            user_id = uuid.UUID(user_id)
         
         # Process the text
         result = await upload_service.process_text_input(text, user_id)
