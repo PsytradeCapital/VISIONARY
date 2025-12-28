@@ -28,10 +28,6 @@ const Schedule: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
-  useEffect(() => {
-    loadSchedule();
-  }, [loadSchedule]);
-
   const loadSchedule = useCallback(async () => {
     try {
       setLoading(true);
@@ -70,6 +66,10 @@ const Schedule: React.FC = () => {
       setLoading(false);
     }
   }, [selectedDate, viewMode, isOnline]);
+
+  useEffect(() => {
+    loadSchedule();
+  }, [loadSchedule]);
 
   const getSampleEvents = (): ScheduleEvent[] => [
     {

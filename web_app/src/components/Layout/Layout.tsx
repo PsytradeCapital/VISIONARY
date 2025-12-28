@@ -91,10 +91,10 @@ const Layout: React.FC = () => {
   };
 
   const navigationItems = [
-    { path: '/', label: 'Dashboard', icon: '🏠' },
-    { path: '/schedule', label: 'Schedule', icon: '📅' },
-    { path: '/upload', label: 'Upload', icon: '📤' },
-    { path: '/analytics', label: 'Analytics', icon: '📊' },
+    { path: '/', label: 'Dashboard', icon: 'dashboard-icon' },
+    { path: '/schedule', label: 'Schedule', icon: 'schedule-icon' },
+    { path: '/upload', label: 'Upload', icon: 'upload-icon' },
+    { path: '/analytics', label: 'Analytics', icon: 'analytics-icon' },
   ];
 
   return (
@@ -103,7 +103,9 @@ const Layout: React.FC = () => {
       <header className="layout-header">
         <div className="header-content">
           <div className="app-brand">
-            <div className="brand-icon">🎯</div>
+            <div className="brand-icon">
+              <div className="ai-brain-icon"></div>
+            </div>
             <h1>Visionary</h1>
           </div>
 
@@ -121,7 +123,7 @@ const Layout: React.FC = () => {
               disabled={!isOnline || syncing}
               title={`Last sync: ${formatLastSync(lastSyncTime)}`}
             >
-              <span className="sync-icon">🔄</span>
+              <div className="sync-icon"></div>
               {syncing ? 'Syncing...' : 'Sync'}
             </button>
           </div>
@@ -137,7 +139,7 @@ const Layout: React.FC = () => {
               className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => handleNavigation(item.path)}
             >
-              <span className="nav-icon">{item.icon}</span>
+              <div className={`nav-icon ${item.icon}`}></div>
               <span className="nav-label">{item.label}</span>
             </button>
           ))}
@@ -155,7 +157,7 @@ const Layout: React.FC = () => {
               </>
             ) : (
               <>
-                <span className="pending-icon">⏳</span>
+                <div className="connection-online-icon"></div>
                 <span>{pendingActions.length} item(s) pending sync</span>
                 {isOnline && (
                   <button className="sync-now-btn" onClick={handleManualSync}>
@@ -177,7 +179,7 @@ const Layout: React.FC = () => {
       {!isOnline && (
         <div className="offline-banner">
           <div className="offline-content">
-            <span className="offline-icon">📡</span>
+            <div className="connection-offline-icon"></div>
             <div className="offline-text">
               <strong>You're offline</strong>
               <p>Changes will sync when you're back online</p>
