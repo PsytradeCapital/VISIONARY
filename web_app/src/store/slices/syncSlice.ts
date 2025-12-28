@@ -161,7 +161,7 @@ const syncSlice = createSlice({
     },
     
     removePendingAction: (state, action: PayloadAction<string>) => {
-      state.pendingActions = state.pendingActions.filter(action => action.id !== action.payload);
+      state.pendingActions = state.pendingActions.filter(pendingAction => pendingAction.id !== action.payload);
       localStorage.setItem('pendingActions', JSON.stringify(state.pendingActions));
     },
     

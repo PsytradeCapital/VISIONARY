@@ -3,7 +3,7 @@
  * Task 11.1: PWA with service workers for offline functionality
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { performBackgroundSync } from '../../store/slices/syncSlice';
@@ -27,21 +27,7 @@ const Dashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-    
-    // Set up periodic sync when online
-    if (isOnline) {
-      const syncInterval = setInterval(() => {
-        // @ts-ignore
-        dispatch(performBackgroundSync());
-      }, 30000); // 30 seconds
-
-      return () => clearInterval(syncInterval);
-    }
-  }, [isOnline, dispatch]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -73,7 +59,21 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isOnline]);
+
+  useEffect(() => {
+    loadDashboardData();
+    
+    // Set up periodic sync when online
+    if (isOnline) {
+      const syncInterval = setInterval(() => {
+        // @ts-ignore
+        dispatch(performBackgroundSync());
+      }, 30000); // 30 seconds
+
+      return () => clearInterval(syncInterval);
+    }
+  }, [isOnline, dispatch, loadDashboardData]);
 
   const handleRefresh = () => {
     if (isOnline) {

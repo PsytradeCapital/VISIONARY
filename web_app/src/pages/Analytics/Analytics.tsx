@@ -3,8 +3,8 @@
  * Task 11.1: PWA with service workers for offline functionality
  */
 
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import './Analytics.css';
 
@@ -29,11 +29,7 @@ const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'year'>('week');
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [timeframe, isOnline]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -70,7 +66,11 @@ const Analytics: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeframe, isOnline]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   const getSampleAnalytics = (): AnalyticsData => ({
     progressScore: 78,

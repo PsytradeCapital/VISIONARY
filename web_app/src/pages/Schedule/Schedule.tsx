@@ -3,7 +3,7 @@
  * Task 11.2: Mobile-web synchronization with cloud backend
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { addPendingAction } from '../../store/slices/syncSlice';
@@ -30,9 +30,9 @@ const Schedule: React.FC = () => {
 
   useEffect(() => {
     loadSchedule();
-  }, [selectedDate, isOnline]);
+  }, [loadSchedule]);
 
-  const loadSchedule = async () => {
+  const loadSchedule = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -69,7 +69,7 @@ const Schedule: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate, viewMode, isOnline]);
 
   const getSampleEvents = (): ScheduleEvent[] => [
     {

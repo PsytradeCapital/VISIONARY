@@ -1,6 +1,4 @@
-/**
- * Service Worker registration and management
- */
+// Service Worker Registration for PWA functionality
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -17,7 +15,7 @@ type Config = {
 
 export function registerSW(config?: Config) {
   if ('serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL!, window.location.href);
+    const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href);
     if (publicUrl.origin !== window.location.origin) {
       return;
     }
@@ -49,7 +47,7 @@ function registerValidSW(swUrl: string, config?: Config) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              console.log('New content is available and will be used when all tabs are closed.');
+              console.log('New content is available and will be used when all tabs for this page are closed.');
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
               }
