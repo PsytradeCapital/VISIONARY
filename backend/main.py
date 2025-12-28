@@ -13,6 +13,7 @@ from api.progress import router as progress_router
 from api.websocket import router as websocket_router
 from api.auth import router as auth_router
 
+# Railway deployment version 1.0
 security = HTTPBearer()
 
 @asynccontextmanager
