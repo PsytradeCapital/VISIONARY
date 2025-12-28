@@ -1,0 +1,236 @@
+# GitHub Actions CI/CD Pipeline for Visionary
+name: Visionary CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: visionary
+  ECS_SERVICE: visionary-backend
+  ECS_CLUSTER: visionary-cluster
+
+jobs:
+  # Backend Testing and Build
+  backend-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_visionary
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      working-directory: ./cloud_backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      working-directory: ./cloud_backend
+      env:
+        POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/test_visionary
+        REDIS_URL: redis://localhost:6379
+        SECRET_KEY: test-secret-key
+        ENCRYPTION_KEY: test-encryption-key-32-chars-long
+      run: |
+        pytest tests/ -v --cov=app --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./cloud_backend/coverage.xml
+
+  # Mobile App Testing
+  mobile-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: mobile_app/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./mobile_app
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: ./mobile_app
+      run: npm test -- --coverage --watchAll=false
+    
+    - name: Run linting
+      working-directory: ./mobile_app
+      run: npm run lint
+
+  # Web App Testing
+  web-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: web_app/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./web_app
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: ./web_app
+      run: npm test -- --coverage --watchAll=false
+    
+    - name: Build PWA
+      working-directory: ./web_app
+      run: npm run build
+
+  # Backend Deployment
+  backend-deploy:
+    needs: [backend-test, mobile-test, web-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Build, tag, and push backend image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd cloud_backend
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    
+    - name: Deploy to ECS
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        aws ecs update-service \
+          --cluster $ECS_CLUSTER \
+          --service $ECS_SERVICE \
+          --force-new-deployment
+
+  # Mobile App Build
+  mobile-build:
+    needs: [backend-test, mobile-test, web-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: mobile_app/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./mobile_app
+      run: npm ci
+    
+    - name: Set up Expo CLI
+      run: npm install -g @expo/cli
+    
+    - name: Build Android APK
+      working-directory: ./mobile_app
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      run: |
+        expo build:android --type apk --non-interactive
+    
+    - name: Build iOS IPA
+      working-directory: ./mobile_app
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      run: |
+        expo build:ios --type archive --non-interactive
+
+  # Web App Deployment
+  web-deploy:
+    needs: [backend-test, mobile-test, web-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: web_app/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./web_app
+      run: npm ci
+    
+    - name: Build PWA
+      working-directory: ./web_app
+      env:
+        REACT_APP_API_URL: https://api.visionary.ai/api/v1
+      run: npm run build
+    
+    - name: Deploy to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        aws s3 sync web_app/build/ s3://visionary-web-app --delete
+    
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"

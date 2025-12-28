@@ -1,0 +1,383 @@
+/* Upload Page Styles for PWA */
+
+.upload-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e5e5ea;
+}
+
+.upload-header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.upload-status {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.offline-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffe8e8;
+  color: #5a2d2d;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.pending-uploads {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.upload-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.file-upload-section,
+.text-input-section,
+.voice-input-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.file-upload-section h2,
+.text-input-section h2,
+.voice-input-section h2 {
+  margin: 0 0 20px 0;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* File Drop Zone */
+.file-drop-zone {
+  border: 3px dashed #e5e5ea;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-active {
+  border-color: #ff6b35;
+  background-color: #fff8f5;
+  transform: translateY(-2px);
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.drop-zone-text {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.click-text {
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+.file-types {
+  color: #8e8e93;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* File List */
+.file-list {
+  margin-top: 30px;
+}
+
+.file-list h3 {
+  margin: 0 0 16px 0;
+  color: #1a1a1a;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.file-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.file-item.completed {
+  border-color: #4caf50;
+  background-color: #f8fff8;
+}
+
+.file-item.failed {
+  border-color: #ff4444;
+  background-color: #fff8f8;
+}
+
+.file-info {
+  flex: 1;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.file-size {
+  color: #8e8e93;
+  font-size: 0.9rem;
+}
+
+.file-progress {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e5ea;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b35, #f7931e);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.file-status {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-pending { color: #ff9800; }
+.status-uploading { color: #2196f3; }
+.status-completed { color: #4caf50; }
+.status-failed { color: #ff4444; }
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.retry-btn,
+.remove-btn {
+  background: none;
+  border: 1px solid #e5e5ea;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  border-color: #ff6b35;
+  background-color: #fff8f5;
+}
+
+.remove-btn:hover {
+  border-color: #ff4444;
+  background-color: #fff8f8;
+}
+
+/* Text Input Section */
+.text-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e5e5ea;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.3s ease;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.text-input-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.character-count {
+  color: #8e8e93;
+  font-size: 0.9rem;
+}
+
+.submit-text-btn {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-text-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.submit-text-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Voice Input Section */
+.voice-input-container {
+  text-align: center;
+  padding: 40px;
+}
+
+.voice-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  opacity: 0.6;
+}
+
+.voice-icon {
+  font-size: 3rem;
+}
+
+.voice-placeholder p {
+  color: #8e8e93;
+  margin: 0;
+}
+
+.voice-btn {
+  background: #e5e5ea;
+  color: #8e8e93;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .upload-page {
+    padding: 15px;
+  }
+  
+  .upload-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .upload-header h1 {
+    font-size: 2rem;
+  }
+  
+  .upload-status {
+    align-items: flex-start;
+  }
+  
+  .file-drop-zone {
+    padding: 30px 20px;
+  }
+  
+  .upload-icon {
+    font-size: 2.5rem;
+  }
+  
+  .file-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .file-progress {
+    flex: none;
+  }
+  
+  .file-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-upload-section,
+  .text-input-section,
+  .voice-input-section {
+    padding: 16px;
+  }
+  
+  .drop-zone-text {
+    font-size: 1rem;
+  }
+  
+  .text-input-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+}

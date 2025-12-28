@@ -1,0 +1,4 @@
+# file: C:\Users\Martin Mbugua\Desktop\VISIONARY\backend\models.py
+# hypothesis_version: 6.148.8
+
+[0.0, 100, 255, 'active', 'knowledge_entries', 'pending', 'reminders', 'schedule_blocks', 'schedule_blocks.id', 'scheduled', 'schedules', 'schedules.id', 'user_feedback', 'users.id', 'vision_metrics', 'visions.id']

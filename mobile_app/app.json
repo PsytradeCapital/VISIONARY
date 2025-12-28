@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Visionary",
+    "slug": "visionary-ai-scheduler",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.visionary.aischeduler",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.visionary.aischeduler",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Visionary to access your camera to capture documents and images."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Visionary to access your microphone for voice input."
+        }
+      ]
+    ],
+    "scheme": "visionary",
+    "extra": {
+      "eas": {
+        "projectId": "visionary-ai-scheduler"
+      }
+    }
+  }
+}

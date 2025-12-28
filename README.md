@@ -1,218 +1,238 @@
-# Visionary - AI Personal Scheduler
+# Visionary AI Personal Scheduler
 
-An AI-powered personal scheduling assistant that learns from user inputs to create personalized daily, weekly, or monthly schedules. The system trains on uploaded data including daily routines, class schedules, and user-defined visions across financial, health, nutrition, and psychological domains.
+A cloud-native, mobile-first AI-powered personal scheduling assistant that learns from user inputs to create personalized schedules with intelligent reminders and goal tracking.
+
+## Architecture Overview
+
+- **Cloud Backend**: Python FastAPI with cloud-native microservices
+- **Mobile App**: React Native with Expo for cross-platform development
+- **Web App**: Progressive Web App (PWA) with service workers
+- **Databases**: PostgreSQL for user data, MongoDB for knowledge base
+- **Cache**: Redis for high-performance caching
+- **Storage**: Encrypted AWS S3 for file storage
+- **Infrastructure**: Docker containers with Kubernetes orchestration
 
 ## Features
 
-✅ **Multi-Modal Data Input**
-- Document upload (PDF, TXT, DOCX)
-- Voice input processing
-- Direct text input
-- Real-time content categorization
-
-✅ **AI-Powered Scheduling**
-- Intelligent schedule generation
-- Pattern recognition and learning
-- Flexible schedule modifications
-- Alternative suggestions
-
-✅ **Progress Tracking**
-- Vision-based goal tracking
-- Real-time progress updates
-- Achievement celebrations
-- Comprehensive reporting
-
-✅ **Real-Time Synchronization**
-- WebSocket-based live updates
-- Cross-platform data sync
-- Instant notifications
-
-✅ **Visual Design Gallery**
-- 19 curated design concepts
-- AI-powered image analysis
-- Interactive image selector
-- Design recommendations
-
-## Tech Stack
-
-### Backend
-- **FastAPI** - Modern Python web framework
-- **PostgreSQL** - Primary database
-- **Redis** - Caching and session storage
-- **SQLAlchemy** - ORM with async support
-- **WebSockets** - Real-time communication
-- **JWT** - Authentication
-
-### Frontend
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Material-UI** - Component library
-- **Axios** - HTTP client
-- **WebSocket API** - Real-time updates
-
-### Infrastructure
-- **Docker** - Containerization
-- **Docker Compose** - Multi-service orchestration
+- 🤖 AI-powered schedule generation with autonomous time blocking
+- 📱 Mobile-first design with cross-platform synchronization
+- 🔒 Industry-standard encryption and security
+- 🎨 AI-generated HD visuals and premium analytics
+- 🌐 Progressive Web App with offline functionality
+- ☁️ Cloud-native architecture for 24/7 operation
+- 📊 Advanced analytics with interactive charts
+- 🔔 Intelligent reminders with conversational tones
 
 ## Quick Start
 
 ### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
 - Docker and Docker Compose
-- Git
+- AWS CLI (for cloud deployment)
 
-### 1. Clone the Repository
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/visionary.git
+   cd visionary
+   ```
+
+2. **Start infrastructure services**
+   ```bash
+   cd infrastructure
+   docker-compose up -d postgres mongodb redis
+   ```
+
+3. **Set up cloud backend**
+   ```bash
+   cd cloud_backend
+   cp .env.example .env
+   # Edit .env with your configuration
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
+
+4. **Set up mobile app**
+   ```bash
+   cd mobile_app
+   npm install
+   npx expo start
+   ```
+
+5. **Set up web app**
+   ```bash
+   cd web_app
+   npm install
+   npm start
+   ```
+
+### Docker Development
+
 ```bash
-git clone <repository-url>
-cd visionary
+cd infrastructure
+docker-compose up
 ```
 
-### 2. Start with Docker Compose
-```bash
-docker-compose up --build
-```
-
-This will start:
-- PostgreSQL database on port 5432
-- Redis cache on port 6379
-- Backend API on port 8000
-- Frontend app on port 3000
-
-### 3. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-
-### 4. Demo Login
-Use any email and password to login (demo mode).
-
-### 5. Explore the Design Gallery
-- **Image Gallery**: http://localhost:3000/gallery - Browse all 19 design concepts
-- **Image Selector**: http://localhost:3000/selector - Interactive image analysis tool
-- **Design Recommendations**: See `IMAGE_RECOMMENDATIONS.md` for detailed analysis
-
-## Development Setup
-
-### Backend Development
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### Frontend Development
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Run Tests
-```bash
-cd backend
-python -m pytest tests/ -v
-```
-
-## API Endpoints
-
-### Upload Processing
-- `POST /api/upload/document` - Upload documents
-- `POST /api/upload/text` - Process text input
-- `POST /api/upload/voice` - Process voice input
-- `GET /api/upload/history` - Get upload history
-
-### Schedule Management
-- `GET /api/schedule/` - Get user schedules
-- `POST /api/schedule/` - Create new schedule
-- `POST /api/schedule/generate` - AI-generate schedule
-- `PUT /api/schedule/{id}` - Update schedule
-- `GET /api/schedule/{id}/alternatives` - Get alternatives
-
-### Progress Tracking
-- `GET /api/progress/overview` - Get progress overview
-- `GET /api/progress/vision/{id}` - Get vision progress
-- `PUT /api/progress/vision/{id}/metric` - Update metric
-- `GET /api/progress/report` - Generate report
-- `GET /api/progress/achievements` - Get achievements
-
-### Reminders
-- `GET /api/reminders/` - Get reminders
-- `POST /api/reminders/` - Create reminder
-- `PUT /api/reminders/{id}` - Update reminder
-
-### Real-Time Updates
-- `WebSocket /ws/{user_id}` - Real-time connection
+This starts all services:
+- Backend API: http://localhost:8000
+- Web App: http://localhost:3000
+- PostgreSQL: localhost:5432
+- MongoDB: localhost:27017
+- Redis: localhost:6379
 
 ## Project Structure
 
 ```
 visionary/
-├── backend/                 # Python FastAPI backend
-│   ├── api/                # API route handlers
-│   ├── tests/              # Test files
-│   ├── models.py           # Database models
-│   ├── database.py         # Database configuration
-│   ├── auth.py             # Authentication
-│   ├── upload_service.py   # Upload processing
-│   ├── ai_service.py       # AI processing
-│   ├── schedule_service.py # Schedule generation
-│   ├── reminder_service.py # Reminder management
-│   ├── progress_service.py # Progress tracking
-│   ├── websocket_service.py # Real-time updates
-│   └── main.py             # Application entry point
-├── frontend/               # React TypeScript frontend
+├── cloud_backend/          # Python FastAPI backend
+│   ├── app/
+│   │   ├── api/            # API endpoints
+│   │   ├── core/           # Core services (auth, database, cache)
+│   │   └── models/         # Data models
+│   ├── tests/              # Backend tests
+│   └── requirements.txt
+├── mobile_app/             # React Native mobile app
+│   ├── src/
+│   │   ├── components/     # Reusable components
+│   │   ├── screens/        # App screens
+│   │   ├── services/       # API services
+│   │   └── store/          # Redux store
+│   └── package.json
+├── web_app/                # Progressive Web App
 │   ├── src/
 │   │   ├── components/     # React components
-│   │   ├── services/       # API services
-│   │   └── App.tsx         # Main app component
-│   └── public/
-├── .kiro/                  # Kiro specs and configuration
-│   └── specs/
-│       └── ai-personal-scheduler/
-├── docker-compose.yml      # Multi-service setup
-└── README.md
+│   │   ├── pages/          # App pages
+│   │   └── utils/          # Utilities and service worker
+│   └── package.json
+└── infrastructure/         # Deployment configuration
+    ├── docker-compose.yml
+    ├── kubernetes/
+    ├── aws/terraform/
+    └── ci-cd/
 ```
 
-## Implementation Status
+## API Documentation
 
-### Completed Tasks ✅
-- [x] Project structure and infrastructure
-- [x] Core data models (User, Vision, Schedule, etc.)
-- [x] Upload processing service (documents, text, voice placeholder)
-- [x] AI processing service (categorization, pattern recognition)
-- [x] Schedule generation service
-- [x] Reminder system
-- [x] Progress tracking service
-- [x] Real-time WebSocket communication
-- [x] Frontend components (Dashboard, Upload, Schedule, Progress)
-- [x] API integration
-- [x] Authentication system
-- [x] Docker containerization
+Once the backend is running, visit:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-### In Progress 🚧
-- [ ] Voice input processing (Google Speech-to-Text integration)
-- [ ] Advanced AI features (proactive suggestions)
-- [ ] Mobile application (React Native)
-- [ ] Comprehensive testing suite
+## Testing
 
-### Planned Features 📋
-- [ ] Calendar integrations (Google Calendar, Apple Calendar)
-- [ ] Advanced analytics and insights
-- [ ] Team collaboration features
-- [ ] Third-party integrations
-- [ ] Mobile push notifications
+### Backend Tests
+```bash
+cd cloud_backend
+pytest tests/ -v --cov=app
+```
+
+### Mobile App Tests
+```bash
+cd mobile_app
+npm test
+```
+
+### Web App Tests
+```bash
+cd web_app
+npm test
+```
+
+## Deployment
+
+### AWS Cloud Deployment
+
+1. **Configure AWS credentials**
+   ```bash
+   aws configure
+   ```
+
+2. **Deploy infrastructure**
+   ```bash
+   cd infrastructure/aws/terraform
+   terraform init
+   terraform plan
+   terraform apply
+   ```
+
+3. **Deploy applications**
+   ```bash
+   # Backend deployment via GitHub Actions
+   git push origin main
+   
+   # Mobile app build
+   cd mobile_app
+   eas build --platform all
+   ```
+
+### Kubernetes Deployment
+
+```bash
+cd infrastructure/kubernetes
+kubectl apply -f backend-deployment.yaml
+```
+
+## Environment Variables
+
+### Backend (.env)
+- `POSTGRES_URL`: PostgreSQL connection string
+- `MONGODB_URL`: MongoDB connection string
+- `REDIS_URL`: Redis connection string
+- `AWS_ACCESS_KEY_ID`: AWS access key
+- `AWS_SECRET_ACCESS_KEY`: AWS secret key
+- `S3_BUCKET_NAME`: S3 bucket for file storage
+- `SECRET_KEY`: JWT secret key
+- `ENCRYPTION_KEY`: File encryption key
+- `OPENAI_API_KEY`: OpenAI API key for AI features
+
+### Mobile App
+- `EXPO_PUBLIC_API_URL`: Backend API URL
+
+### Web App
+- `REACT_APP_API_URL`: Backend API URL
+
+## Security Features
+
+- 🔐 End-to-end encryption for sensitive data
+- 🛡️ Industry-standard authentication with JWT
+- 🔒 Encrypted file storage in AWS S3
+- 🚫 Secure data deletion and cleanup
+- 🔑 Minimal permissions for external integrations
+- 🛡️ Rate limiting and DDoS protection
+
+## AI Features
+
+- 📝 Document parsing and content categorization
+- 🎤 Voice input processing with speech-to-text
+- 🧠 Pattern recognition and habit defense
+- 📅 Autonomous time blocking and conflict resolution
+- 🎨 AI-generated HD visuals (DALL-E, Midjourney, Stable Diffusion)
+- 📊 Premium visual analytics and insights
+- 🔔 Conversational reminder tones
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
-For questions or support, please open an issue in the repository.
+For support, email support@visionary.ai or join our Slack channel.
+
+## Roadmap
+
+- [ ] Advanced AI model integration
+- [ ] Multi-language support
+- [ ] Calendar integrations (Google, Outlook, Apple)
+- [ ] Wearable device integration
+- [ ] Team collaboration features
+- [ ] Advanced analytics dashboard
