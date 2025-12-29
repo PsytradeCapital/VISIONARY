@@ -4,13 +4,7 @@
     "slug": "visionary-ai-scheduler",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -20,10 +14,6 @@
       "buildNumber": "1"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
       "package": "com.visionary.aischeduler",
       "versionCode": 1,
       "permissions": [
@@ -33,10 +23,6 @@
         "WRITE_EXTERNAL_STORAGE",
         "NOTIFICATIONS"
       ]
-    },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
     },
     "plugins": [
       "expo-notifications",
@@ -56,7 +42,7 @@
     "scheme": "visionary",
     "extra": {
       "eas": {
-        "projectId": "visionary-ai-scheduler"
+        "projectId": "07a5735e-5110-40b1-9cc4-fb3ac0f4c193"
       }
     }
   }
