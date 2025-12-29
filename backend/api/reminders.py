@@ -13,6 +13,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/reminders", tags=["reminders"])
 
+@router.get("/")
+async def get_reminders_root(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get reminders - root endpoint"""
+    return await get_user_reminders(credentials=credentials, db=db)
+
 class ReminderRequest(BaseModel):
     title: str
     message: Optional[str] = None

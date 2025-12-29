@@ -179,6 +179,42 @@ async def optimize_schedule(
         logger.error(f"Error optimizing schedule: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@router.get("/")
+async def get_schedules_root(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get user's schedules - root endpoint"""
+    return await get_user_schedules(credentials=credentials, db=db)
+
+@router.get("/tasks")
+async def get_user_tasks(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get user's tasks"""
+    try:
+        # Verify user authentication
+        user = await verify_token(credentials.credentials)
+        user_id = user["id"]
+        
+        # TODO: Implement database query to get user tasks
+        # For now, return placeholder data
+        
+        return {
+            "success": True,
+            "data": {
+                "tasks": [],
+                "total": 0
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user tasks: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @router.get("/user")
 async def get_user_schedules(
     timeframe: Optional[str] = Query(None, description="Filter by timeframe"),

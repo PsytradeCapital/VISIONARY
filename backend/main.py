@@ -64,6 +64,10 @@ app.include_router(websocket_router)
 async def root():
     return {"message": "Visionary AI Personal Scheduler API"}
 
+@app.get("/api/")
+async def api_root():
+    return {"message": "Visionary AI API v1.0", "status": "operational"}
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}

@@ -12,6 +12,29 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
+@router.get("/status")
+async def get_upload_status(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get upload service status"""
+    try:
+        # Verify user authentication
+        user = await verify_token(credentials.credentials)
+        
+        return {
+            "success": True,
+            "status": "operational",
+            "supported_formats": ["pdf", "txt", "docx", "mp3", "wav", "m4a"],
+            "max_file_size": "10MB"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting upload status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @router.post("/document")
 async def upload_document(
     file: UploadFile = File(...),
@@ -210,53 +233,6 @@ async def get_knowledge_entries(
     except Exception as e:
         logger.error(f"Error getting knowledge entries: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-        user = await verify_token(credentials.credentials)
-        user_id = user["id"]
-        
-        # Process the text
-        result = await upload_service.process_text_input(text, user_id)
-        
-        return {
-            "success": True,
-            "message": "Text processed successfully",
-            "data": result
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in upload_text: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.post("/voice")
-async def upload_voice(
-    audio_file: UploadFile = File(...),
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db)
-):
-    """Upload and process voice input"""
-    try:
-        # Verify user authentication
-        user = await verify_token(credentials.credentials)
-        user_id = user["id"]
-        
-        # Read audio data
-        audio_data = await audio_file.read()
-        
-        # Process the voice input
-        result = await upload_service.process_voice_input(audio_data, user_id)
-        
-        return {
-            "success": True,
-            "message": "Voice input processed successfully",
-            "data": result
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in upload_voice: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/history")
 async def get_upload_history(

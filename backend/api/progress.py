@@ -11,6 +11,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/progress", tags=["progress"])
 
+@router.get("/")
+async def get_progress_root(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get progress - root endpoint"""
+    return await get_progress_overview(credentials=credentials, db=db)
+
 @router.get("/overview")
 async def get_progress_overview(
     credentials: HTTPAuthorizationCredentials = Depends(security),
