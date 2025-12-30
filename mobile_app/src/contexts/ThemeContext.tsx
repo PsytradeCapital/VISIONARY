@@ -146,7 +146,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         setColorSchemeState(savedScheme as ColorScheme);
       }
     } catch (error) {
-      console.error('Failed to load color scheme:', error);
+      console.log('AsyncStorage not available, using default theme');
+      // Fallback to default if AsyncStorage fails
     }
   };
 
@@ -165,7 +166,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       await AsyncStorage.setItem('colorScheme', scheme);
       setColorSchemeState(scheme);
     } catch (error) {
-      console.error('Failed to save color scheme:', error);
+      console.log('AsyncStorage not available, theme not persisted');
+      // Still update the state even if we can't persist
+      setColorSchemeState(scheme);
     }
   };
 
