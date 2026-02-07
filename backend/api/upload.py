@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from auth import verify_token, security
-from upload_service import upload_service
+from gemini_ai_service import gemini_service
 from models import KnowledgeEntryCreate, KnowledgeEntryResponse, KnowledgeEntry
 import logging
 
@@ -52,8 +52,12 @@ async def upload_document(
         if isinstance(user_id, str):
             user_id = uuid.UUID(user_id)
         
-        # Process the document
-        result = await upload_service.process_document(file, user_id)
+        # Read file content
+        content = await file.read()
+        text = content.decode('utf-8', errors='ignore')
+        
+        # Process with Gemini AI
+        result = await gemini_service.analyze_document(text)
         
         # Save to database
         knowledge_entry = KnowledgeEntry(
@@ -104,8 +108,8 @@ async def upload_text(
         if isinstance(user_id, str):
             user_id = uuid.UUID(user_id)
         
-        # Process the text
-        result = await upload_service.process_text_input(text, user_id)
+        # Process with Gemini AI
+        result = await gemini_service.analyze_document(text)
         
         # Save to database
         knowledge_entry = KnowledgeEntry(
@@ -156,8 +160,13 @@ async def upload_voice(
         if isinstance(user_id, str):
             user_id = uuid.UUID(user_id)
         
-        # Process the voice file
-        result = await upload_service.process_voice_input(file, user_id)
+        # For now, return placeholder for voice
+        result = {
+            "transcribed_text": "Voice transcription coming soon",
+            "category": "task",
+            "confidence": 0.5,
+            "extracted_items": {}
+        }
         
         # Save to database
         knowledge_entry = KnowledgeEntry(

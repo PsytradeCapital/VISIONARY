@@ -41,12 +41,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "https://*.vercel.app",   # Vercel deployments
-        "https://*.netlify.app",  # Netlify deployments
-        "https://your-domain.com" # Your custom domain
-    ],
+    allow_origins=["*"],  # Allow all origins for now - restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

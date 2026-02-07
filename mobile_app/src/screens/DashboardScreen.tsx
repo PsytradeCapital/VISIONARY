@@ -77,7 +77,7 @@ const DashboardScreen: React.FC = () => {
       const contentService = new MotivationalContentService();
       const content = await contentService.generateDailyMotivation({
         userId: user?.id || 'demo_user',
-        visionCategory: 'health', // This would come from user preferences
+        visionCategory: 'health',
         userName: user?.name || 'Champion',
         goals: ['fitness', 'nutrition', 'productivity'],
         currentProgress: analytics?.progressSummary || {}
