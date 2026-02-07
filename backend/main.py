@@ -8,7 +8,6 @@ from database import init_db
 from auth import verify_token
 from api.upload import router as upload_router
 from api.schedule import router as schedule_router
-from api.reminders import router as reminders_router
 from api.progress import router as progress_router
 from api.websocket import router as websocket_router
 from api.auth import router as auth_router
@@ -51,7 +50,6 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(schedule_router)
-app.include_router(reminders_router)
 app.include_router(progress_router)
 app.include_router(websocket_router)
 
