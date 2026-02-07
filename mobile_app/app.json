@@ -22,6 +22,10 @@
     "android": {
       "package": "com.visionary.aischeduler",
       "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
