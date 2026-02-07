@@ -24,8 +24,7 @@ import aiohttp
 
 # Import all services
 from ai_service import ai_service, AIProcessingService
-from upload_service import upload_service, UploadProcessingService
-from schedule_service import schedule_service, ScheduleGenerationService
+from gemini_ai_service import gemini_service
 from reminder_service import reminder_service, ReminderService
 from progress_service import progress_service, ProgressTrackingService
 from external_integrations import ExternalIntegrationsService

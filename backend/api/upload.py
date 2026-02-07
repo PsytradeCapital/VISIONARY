@@ -63,8 +63,8 @@ async def upload_document(
         knowledge_entry = KnowledgeEntry(
             user_id=user_id,
             source_type='document',
-            content=result.get('extracted_text', ''),
-            extracted_data=result.get('extracted_items', {}),
+            content=text[:1000],  # Store first 1000 chars
+            extracted_data=result.get('tasks', []),
             category=result.get('category', 'task'),
             confidence=result.get('confidence', 0.8)
         )
@@ -80,7 +80,8 @@ async def upload_document(
                 "id": str(knowledge_entry.id),
                 "filename": file.filename,
                 "category": knowledge_entry.category,
-                "extracted_items": knowledge_entry.extracted_data,
+                "tasks": result.get('tasks', []),
+                "summary": result.get('summary', ''),
                 "confidence": knowledge_entry.confidence
             }
         }
@@ -116,7 +117,7 @@ async def upload_text(
             user_id=user_id,
             source_type='text',
             content=text,
-            extracted_data=result.get('extracted_items', {}),
+            extracted_data=result.get('tasks', []),
             category=result.get('category', 'task'),
             confidence=result.get('confidence', 0.8)
         )
@@ -132,7 +133,8 @@ async def upload_text(
                 "id": str(knowledge_entry.id),
                 "content_length": len(text),
                 "category": knowledge_entry.category,
-                "extracted_items": knowledge_entry.extracted_data,
+                "tasks": result.get('tasks', []),
+                "summary": result.get('summary', ''),
                 "confidence": knowledge_entry.confidence
             }
         }
@@ -172,10 +174,10 @@ async def upload_voice(
         knowledge_entry = KnowledgeEntry(
             user_id=user_id,
             source_type='voice',
-            content=result.get('transcribed_text', ''),
-            extracted_data=result.get('extracted_items', {}),
+            content=result.get('transcribed_text', 'Voice transcription coming soon'),
+            extracted_data=result.get('tasks', []),
             category=result.get('category', 'task'),
-            confidence=result.get('confidence', 0.8)
+            confidence=result.get('confidence', 0.5)
         )
         
         db.add(knowledge_entry)
@@ -187,9 +189,8 @@ async def upload_voice(
             "message": "Voice recording processed and saved successfully",
             "data": {
                 "id": str(knowledge_entry.id),
-                "transcribed_text": result.get('transcribed_text', ''),
+                "transcribed_text": result.get('transcribed_text', 'Voice transcription coming soon'),
                 "category": knowledge_entry.category,
-                "extracted_items": knowledge_entry.extracted_data,
                 "confidence": knowledge_entry.confidence
             }
         }

@@ -157,10 +157,7 @@ class AIProcessingService:
                 matches = len(re.findall(pattern, content_lower))
                 category_scores[category] += matches * 2  # Pattern matches get higher weight
         
-        # Add simple keyword scoring
-        from upload_service import UploadProcessingService
-        upload_service = UploadProcessingService()
-        simple_category = upload_service._categorize_content(content)
+        # Simple keyword-based categorization as fallback
         category_scores[simple_category] += 1
         
         # Determine final category
