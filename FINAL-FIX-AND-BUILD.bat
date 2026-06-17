@@ -1,31 +1,37 @@
 @echo off
 echo ========================================
-echo FINAL FIX - Remove Incompatible Packages
+echo Final Fix - Clean Build
 echo ========================================
-echo.
-echo Problem: react-native-os uses deprecated Gradle compile() method
-echo Solution: Remove ALL polyfills, let axios use browser build
 echo.
 
 cd mobile_app
 
-echo Step 1: Removing incompatible packages...
-call npm uninstall browserify-zlib https-browserify path-browserify react-native-os readable-stream stream-http url expo-crypto
+echo Step 1: Using clean package.json (no problematic polyfills)...
+copy /Y package-clean.json package.json
 
 echo.
-echo Step 2: Clean reinstall...
-if exist node_modules rmdir /s /q node_modules
-if exist package-lock.json del package-lock.json
-
-call npm install
+echo Step 2: Removing old dependencies...
+if exist node_modules (
+    rmdir /s /q node_modules
+)
+if exist package-lock.json (
+    del package-lock.json
+)
 
 echo.
-echo Step 3: Building APK...
+echo Step 3: Installing clean dependencies...
+call npm install --legacy-peer-deps
+
+echo.
+echo Step 4: Starting build on EAS cloud...
+echo (This runs on Expo servers - you can close this window after it starts)
+echo.
 call eas build --platform android --profile preview --non-interactive
 
+cd ..
 echo.
 echo ========================================
-echo Build Started!
+echo Build submitted to EAS!
+echo Check: https://expo.dev
 echo ========================================
-cd ..
 pause
